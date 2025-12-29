@@ -1720,7 +1720,6 @@ $$
 $$
 
 *Proof:* Starting with the left side of what we want to prove:
-
 \begin{align}
 \sum_{i=1}^{k+1} (2i - 1) &= \left[\sum_{i=1}^k (2i - 1)\right] + (2(k+1) - 1) \\
 \end{align}

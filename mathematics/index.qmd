@@ -4,5 +4,36 @@ title: "Mathematics"
 
 ## [1- Mathematical Reasoning](Mathematical_Reasoning_Enhanced.qmd) {.unnumbered}
 
-## [2- Euclidean Geometry](euclidean_geometry_enhanced.qmd) {.unnumbered}
+## 2- Number Theory and Elementary Algebra {.toggle-heading .unnumbered}
 
+::: {.toggle-content}
+### [2.1- Natural Numbers](natural_numbers_part_1.qmd) {.unnumbered}
+:::
+
+## [3- Euclidean Geometry](euclidean_geometry_enhanced.qmd) {.unnumbered}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Handle all toggle headings
+  const toggleHeadings = document.querySelectorAll('.toggle-heading');
+  
+  toggleHeadings.forEach(heading => {
+    // Find the next sibling that is the toggle-content div
+    let content = heading.nextElementSibling;
+    while (content && !content.classList.contains('toggle-content')) {
+      content = content.nextElementSibling;
+    }
+    
+    if (content) {
+      // Start expanded by default
+      // To start collapsed, uncomment the next line:
+      // content.classList.add('collapsed');
+      
+      heading.addEventListener('click', function(e) {
+        e.preventDefault();
+        content.classList.toggle('collapsed');
+      });
+    }
+  });
+});
+</script>

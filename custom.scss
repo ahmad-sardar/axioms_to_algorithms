@@ -82,11 +82,10 @@ html {
   scroll-behavior: smooth;
 }
 
-// Global transitions
+// Global transitions - EXCLUDE transform to avoid scroll-spy conflicts
 * {
   transition: color $transition-base, background-color $transition-base, 
-              border-color $transition-base, transform $transition-base,
-              box-shadow $transition-base;
+              border-color $transition-base, box-shadow $transition-base;
 }
 
 // Body defaults
@@ -141,7 +140,7 @@ h2 {
       color: $blue-light;
       
       &::after {
-        display: none; // Remove underline on hover for h2 links
+        display: none;
       }
     }
   }
@@ -185,8 +184,8 @@ a {
   text-decoration: none;
   font-weight: 500;
   position: relative;
+  transition: color $transition-base;
   
-  // Don't apply underline animation to external links (they have their own ::after for icon)
   &:not(.external)::after {
     content: '';
     position: absolute;
@@ -207,7 +206,7 @@ a {
   }
 }
 
-// Remove Quarto's external link icon (chain symbol) completely - multiple selectors for maximum coverage
+// Remove Quarto's external link icon
 a.external::after,
 a[href^="http"]::after,
 a[href^="https"]::after,
@@ -340,7 +339,8 @@ pre {
   background-clip: text;
 }
 
-.nav-link {
+// Scope nav-link styles to NAVBAR ONLY
+.navbar .nav-link {
   color: $text-secondary !important;
   position: relative;
   font-weight: 500;
@@ -448,7 +448,6 @@ table {
     transition: background $transition-base;
   }
   
-  // Note callout - Blue (aligned with default theme)
   &.callout-note {
     border-left: 4px solid $blue-accent;
     background: rgba(27, 130, 220, 0.575);
@@ -459,7 +458,6 @@ table {
     }
   }
   
-  // Tip callout - Green (success)
   &.callout-tip {
     border-left: 4px solid $success;
     background: rgba(16, 185, 129, 0.1);
@@ -470,7 +468,6 @@ table {
     }
   }
   
-  // Warning callout - Amber/Yellow
   &.callout-warning {
     border-left: 4px solid $warning;
     background: rgba(245, 158, 11, 0.1);
@@ -481,7 +478,6 @@ table {
     }
   }
   
-  // Caution callout - Orange
   &.callout-caution {
     border-left: 4px solid $caution;
     background: rgba(249, 115, 22, 0.1);
@@ -492,7 +488,6 @@ table {
     }
   }
   
-  // Important callout - Red (danger)
   &.callout-important {
     border-left: 4px solid $danger;
     background: rgba(239, 68, 68, 0.1);
@@ -502,7 +497,6 @@ table {
       background: linear-gradient(180deg, $danger, #f87171);
     }
   }
-  
 }
 
 // ============================================
@@ -535,7 +529,7 @@ figcaption {
 }
 
 // ============================================
-// LAYOUT COMPONENTS
+// SIDEBAR & TOC STYLING
 // ============================================
 
 // Sidebar
@@ -545,24 +539,139 @@ figcaption {
   backdrop-filter: blur(10px);
 }
 
-// Sidebar TOC - Override green highlighting to match blue theme
-.sidebar nav[role="doc-toc"] ul > li > a.active,
-.sidebar nav[role="doc-toc"] ul > li > ul > li > a.active {
-  border-left-color: $blue-accent !important;
-  color: $blue-accent !important;
+// TOC Links - Target actual anchor tags in TOC
+.sidebar nav[role="doc-toc"] a,
+#quarto-sidebar nav[role="doc-toc"] a,
+nav[role="doc-toc"] a {
+  // Reset any default styles
+  padding: $spacing-sm $spacing-md;
+  padding-top: $spacing-sm;
+  font-size: 0.95rem;
+  border-radius: 0;
+  background: transparent !important;
+  border-left: 2px solid transparent;
+  font-weight: 400;
+  text-decoration: none;
+  
+  // Remove navbar underline if it exists
+  &::after {
+    display: none !important;
+  }
+  
+  // Base color - no highlight by default
+  color: $text-secondary !important;
+  
+  // Smooth transitions for scroll-spy
+  transition: color $transition-base, 
+              background-color $transition-base, 
+              border-left-color $transition-base,
+              padding-left $transition-base;
+  
+  // ONLY highlight when scroll-spy adds .active class
+  &.active {
+    color: $blue-accent !important;
+    border-left-color: $blue-accent !important;
+    background: rgba(91, 141, 184, 0.1) !important;
+    font-weight: 600;
+  }
+  
+  // Hover state (subtle, no highlight)
+  &:hover:not(.active) {
+    color: $text-primary !important;
+    background: transparent !important;
+    padding-left: calc(#{$spacing-md} + 2px);
+  }
+  
+  // Hover when active (slightly brighter)
+  &:hover.active {
+    color: $blue-light !important;
+    background: rgba(91, 141, 184, 0.15) !important;
+  }
 }
 
-.sidebar nav[role="doc-toc"] ul > li > a:hover,
-.sidebar nav[role="doc-toc"] ul > li > ul > li > a:hover {
-  color: $blue-light !important;
+// Nested TOC items (h3, h4, etc.)
+.sidebar nav[role="doc-toc"] ul ul a,
+#quarto-sidebar nav[role="doc-toc"] ul ul a {
+  padding-left: $spacing-xl;
+  font-size: 0.9rem;
+  color: $text-muted !important;
+  
+  // Only highlight when active (scroll-spy)
+  &.active {
+    color: $blue-accent !important;
+    border-left-color: $blue-accent !important;
+    background: rgba(91, 141, 184, 0.1) !important;
+    font-weight: 600;
+  }
+  
+  &:hover:not(.active) {
+    color: $text-secondary !important;
+    background: transparent !important;
+    padding-left: calc(#{$spacing-xl} + 2px);
+  }
+  
+  &:hover.active {
+    color: $blue-light !important;
+    background: rgba(91, 141, 184, 0.15) !important;
+  }
 }
+
+// Hide section numbers in TOC
+.sidebar nav[role="doc-toc"] .header-section-number,
+#quarto-sidebar .header-section-number {
+  display: none;
+}
+
+// Override any default Quarto TOC highlighting - only allow .active class
+.sidebar nav[role="doc-toc"] a:not(.active),
+#quarto-sidebar nav[role="doc-toc"] a:not(.active) {
+  // Ensure no highlighting unless .active
+  border-left-color: transparent !important;
+  background: transparent !important;
+  color: $text-secondary !important;
+}
+
+// Ensure nested items also follow the rule
+.sidebar nav[role="doc-toc"] ul ul a:not(.active),
+#quarto-sidebar nav[role="doc-toc"] ul ul a:not(.active) {
+  border-left-color: transparent !important;
+  background: transparent !important;
+  color: $text-muted !important;
+}
+
+// Ensure all headings visible (for toggle sections)
+.sidebar nav[role="doc-toc"] h2,
+.sidebar nav[role="doc-toc"] h3,
+.sidebar nav[role="doc-toc"] h4,
+#quarto-sidebar h2,
+#quarto-sidebar h3,
+#quarto-sidebar h4 {
+  display: block;
+  visibility: visible;
+  opacity: 1;
+}
+
+// TOC list styling
+.sidebar nav[role="doc-toc"] ul,
+#quarto-sidebar nav[role="doc-toc"] ul {
+  list-style: none;
+  padding-left: 0;
+  margin-left: 0;
+  
+  li {
+    margin: 2px 0;
+  }
+}
+
+// ============================================
+// LAYOUT COMPONENTS
+// ============================================
 
 // Main content area
 #quarto-content {
   padding: $spacing-xl;
   padding-top: $spacing-md;
   
-  // Move first element (which contains title) up by reducing its padding-top
   > *:first-child {
     padding-top: calc(1rem - 10px) !important;
   }
@@ -588,22 +697,31 @@ main {
   backdrop-filter: blur(5px);
 }
 
+// TOC items (alternative TOC format if used)
 .toc-item {
   color: $text-secondary !important;
-  transition: all $transition-base;
+  transition: color $transition-base;
   padding: $spacing-sm 0;
   
-  &:hover {
-    color: $blue-light !important;
+  // Only highlight when active (scroll-spy)
+  &.active {
+    color: $blue-accent !important;
+    font-weight: 600;
+    border-left: 2px solid $blue-accent;
+    padding-left: $spacing-md;
+    background: rgba(91, 141, 184, 0.1);
+  }
+  
+  // Subtle hover, no highlight
+  &:hover:not(.active) {
+    color: $text-primary !important;
     padding-left: $spacing-sm;
   }
-}
-
-.toc-item.active {
-  color: $blue-light !important;
-  font-weight: 600;
-  border-left: 3px solid $blue-accent;
-  padding-left: $spacing-md;
+  
+  &:hover.active {
+    color: $blue-light !important;
+    background: rgba(91, 141, 184, 0.15);
+  }
 }
 
 // Footer
@@ -614,6 +732,53 @@ main {
   background: rgba(12, 18, 32, 0.5);
   backdrop-filter: blur(5px);
   margin-top: $spacing-2xl;
+}
+
+// ============================================
+// TOGGLEABLE SECTIONS
+// ============================================
+
+// Toggleable H2 headings
+h2.toggle-heading {
+  cursor: pointer;
+  user-select: none;
+  transition: color $transition-base, transform $transition-fast;
+  
+  &:hover {
+    color: $blue-light !important;
+    transform: translateX(4px);
+  }
+  
+  margin-top: $spacing-2xl;
+  margin-bottom: $spacing-lg;
+  padding-bottom: $spacing-md;
+  border-bottom: 2px solid $border-medium;
+}
+
+// Collapsible content container
+.toggle-content {
+  overflow: hidden;
+  transition: max-height 0.4s ease-out, opacity 0.3s ease-out;
+  max-height: 5000px;
+  opacity: 1;
+  
+  &.collapsed {
+    max-height: 0 !important;
+    opacity: 0;
+    margin: 0 !important;
+  }
+  
+  > h3 {
+    margin-top: $spacing-md !important;
+    
+    &:first-child {
+      margin-top: $spacing-sm !important;
+    }
+  }
+  
+  > * {
+    margin-left: 0;
+  }
 }
 
 // ============================================
@@ -662,6 +827,14 @@ main {
     &:not(:has(a)) {
       cursor: default;
     }
+    
+    &.toggle-heading {
+      cursor: pointer;
+      
+      &:hover {
+        transform: translateX(2px);
+      }
+    }
   }
   
   h3 {
@@ -690,6 +863,12 @@ main {
   
   .callout {
     padding: $spacing-md;
+  }
+  
+  .toggle-content {
+    &:not(.collapsed) {
+      max-height: 10000px;
+    }
   }
 }
 
@@ -722,11 +901,10 @@ main {
       text-decoration: underline;
       
       &::after {
-        display: none; // Remove underline on hover for h2 links
+        display: none;
       }
     }
   }
-
   
   .navbar,
   #quarto-sidebar,
@@ -750,9 +928,27 @@ main {
       background: #f0f0f0;
     }
   }
+  
+  .toggle-content {
+    max-height: none !important;
+    opacity: 1 !important;
+    
+    &.collapsed {
+      max-height: none !important;
+      opacity: 1 !important;
+    }
+  }
+  
+  h2.toggle-heading {
+    cursor: default;
+    
+    &:hover {
+      transform: none;
+    }
+  }
 }
 
-// Final override to remove ALL external link icons - must be at the end to override everything
+// Final override to remove ALL external link icons
 a.external::after,
 a[href^="http"]::after,
 a[href^="https"]::after,
@@ -762,5 +958,3 @@ a[href^="mailto"]::after {
   content: none !important;
   background-image: none !important;
 }
-
-
