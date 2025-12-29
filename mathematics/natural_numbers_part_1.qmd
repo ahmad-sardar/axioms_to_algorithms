@@ -1,0 +1,876 @@
+---
+title: "Natural Numbers via Peano Axioms"
+subtitle: "Foundational Construction of Arithmetic from First Principles"
+format:
+  html:
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    number-sections: true
+    code-fold: show
+    theme: cosmo
+    html-math-method: katex
+  pdf:
+    toc: true
+    number-sections: true
+    colorlinks: true
+execute:
+  echo: true
+  warning: false
+---
+
+# Introduction {.unnumbered}
+
+This document presents a rigorous construction of the natural numbers from axiomatic foundations. We develop the complete theory of $\mathbb{N}$ starting only from the Peano Axioms, proving even seemingly "obvious" properties through careful logical reasoning.
+
+By the end of this treatment, you will be able to:
+
+- State and explain all five Peano Axioms precisely
+- Understand why each axiom is necessary through counterexamples
+- Distinguish between axioms, definitions, and theorems
+- Prove basic properties using mathematical induction
+- Define arithmetic operations recursively
+- Recognize and debug common errors in inductive proofs
+
+**Prerequisites:** Basic familiarity with sets, functions, and logical reasoning. We assume knowledge of injectivity (different inputs produce different outputs) and the distinction between necessary and sufficient conditions.
+
+**Structure:** We begin with historical motivation, build intuitive understanding through multiple mental models, state the formal axioms, examine why each is necessary, derive key properties, and finally construct addition from first principles.
+
+# Motivation
+
+## The Counting Problem
+
+Consider ancient mathematicians attempting to answer basic questions:
+
+- "How many sheep do I have?"
+- "Is my flock larger than yours?"
+- "If I combine our flocks, how many total?"
+
+They had available:
+
+- Physical objects (pebbles, fingers, tally marks)
+- The ability to match objects one-to-one
+- The concept of "one more"
+
+What was difficult: **How do you define "number" without using numbers?** How do you ensure everyone means the same thing by "three"? How do you prove $3 + 2 = 2 + 3$ without just "seeing" it?
+
+## Historical Failures
+
+### Concrete Counting (Egyptian, ~3000 BCE)
+
+The Egyptians used different symbols for 1, 10, 100, 1000.
+
+**Problem:** No systematic way to extend indefinitely. What comes after the largest symbol invented?
+
+### Geometric Representation (Greek, ~500 BCE)
+
+Numbers were represented as lengths and areas.
+
+**Problem:** Cannot represent irrational numbers as ratios. The discovery that $\sqrt{2}$ exists geometrically but not arithmetically in their system led to crisis.
+
+### Intuitive Infinity (Pre-Cantor, ~1850)
+
+Mathematicians worked with vague notions that "numbers go on forever."
+
+**Problem:** Led to paradoxes about infinite sets. Questions like "Is $\infty + 1 = \infty$?" had no clear answer.
+
+## Peano's Breakthrough (1889)
+
+Giuseppe Peano asked: **What is the absolute minimum we must assume to make arithmetic work?**
+
+His key insight: We don't need to define what numbers "are"—we only need to specify **how they behave**.
+
+**Rejected approach:**
+- Trying to define "three" as "the symbol after two" (circular!)
+- Trying to define numbers as sets of objects (conflates number with quantity)
+
+**Successful approach:**
+
+1. Start with one primitive object: **0** (or 1 in original formulation)
+2. Define one primitive operation: **successor** $S(n)$ = "the next number"
+3. State axioms characterizing how successor behaves
+4. Everything else (addition, multiplication, exponentiation) derives from these axioms
+
+This approach revolutionized mathematics by showing how to axiomatize mathematical structures. It inspired:
+
+- Zermelo-Fraenkel axioms for set theory
+- Hilbert's axioms for geometry  
+- Modern abstract algebra
+
+# Intuitive Understanding
+
+Before seeing the formal axioms, we develop three equivalent mental models for the natural numbers.
+
+## Three Mental Models
+
+### Model 1: Chain of Beads
+
+```
+0 ——→ 1 ——→ 2 ——→ 3 ——→ 4 ——→ 5 ——→ ...
+     S      S      S      S      S
+```
+
+Imagine an infinite chain of beads:
+
+- First bead is labeled **0** (starting point)
+- Each bead has exactly one string attached leading to the next bead (successor)
+- No bead has a string leading back to 0 (no cycles)
+- The chain continues forever (infinite)
+- You can reach any bead by starting at 0 and following strings
+
+**Key features:**
+
+- **Linear** (not branching, not circular)
+- **Infinite** (no last bead)
+- **Connected** (every bead reachable from 0)
+- **Directed** (arrows go one way)
+
+### Model 2: Stepladder
+
+```
+        ...
+         ║
+        ║ 3
+         ║
+        ║ 2
+         ║
+        ║ 1
+         ║
+Ground ▓▓▓ 0
+```
+
+Imagine an infinite ladder reaching upward:
+
+- Ground level = 0 (you start here)
+- Each rung is one step up (successor function)
+- You can always climb one more rung (no highest step)
+- You can't skip rungs (must go $0 \to 1 \to 2 \to 3$, not $0 \to 5$ directly)
+- You can never climb below ground level (no negative rungs in $\mathbb{N}$)
+
+**This model emphasizes:**
+
+- **Well-ordered:** Clear notion of "before" and "after"
+- **Discrete steps:** No "between" 3 and 4 (unlike real numbers)
+- **Grounded:** Everything builds from 0
+
+### Model 3: Construction Process
+
+```
+Stage 0: {0}
+Stage 1: {0, 1}           where 1 = S(0)
+Stage 2: {0, 1, 2}        where 2 = S(1) = S(S(0))
+Stage 3: {0, 1, 2, 3}     where 3 = S(2) = S(S(S(0)))
+...
+Stage ω: ℕ = {0, 1, 2, 3, ...}
+```
+
+Think of natural numbers as **iterative construction:**
+
+- We start with just 0
+- At each stage, we add the successor of the largest element so far
+- Continue this process infinitely
+- $\mathbb{N}$ is exactly what this process generates
+
+**This model emphasizes:**
+
+- **Generative:** Numbers are built from simpler numbers
+- **Minimal:** $\mathbb{N}$ contains only what this process generates (nothing extra)
+- **Recursive:** Each stage uses the previous stage
+
+## The Core Principle
+
+All three models reveal the same fundamental insight: **recursive structure**.
+
+To define what happens at stage $n$, we refer to stage $n-1$. This recursive pattern manifests as:
+
+- **Inductive definition** (define complex things from simpler things)
+- **Structural recursion** (build on previous structure)
+- **Mathematical induction** (prove for $n$ by assuming true for $n-1$)
+
+This recursive structure is why the Peano axioms work and why mathematical induction is the natural proof technique for $\mathbb{N}$.
+
+## Edge Cases and Counterexamples
+
+These mental models help us predict what properties the formal axioms must satisfy.
+
+### What if we had cycles?
+
+Consider clock arithmetic modulo 5:
+
+```
+    0
+   ↗ ↖
+  4   1
+  ↓   ↑
+    3-2
+```
+
+Where $S(4) = 0$ (loops back). This violates the chain/ladder/construction models:
+
+- Chain: String leads back to first bead
+- Ladder: Can climb back down to ground
+- Construction: Process doesn't generate anything new after 5 steps
+
+This structure satisfies some natural properties but lacks others. Distinguishing $\mathbb{N}$ from finite cycles requires an explicit axiom.
+
+### What if elements were unreachable from 0?
+
+Consider $\mathbb{N} \cup \{\infty\}$ where $\infty$ is isolated:
+
+```
+0 → 1 → 2 → 3 → ...  (reachable chain)
+
+        ∞             (unreachable element)
+```
+
+This violates the construction model: $\infty$ is not generated by repeatedly applying successor to 0.
+
+An axiom ensuring **minimality**—that $\mathbb{N}$ contains exactly what's reachable from 0—is necessary.
+
+# The Peano Axioms
+
+We now make our intuitive understanding precise. The natural numbers are characterized by:
+
+- A set $\mathbb{N}$
+- A distinguished element $0 \in \mathbb{N}$
+- A function $S: \mathbb{N} \to \mathbb{N}$ (the successor function)
+
+These must satisfy five axioms.
+
+## Axiom 1: Existence
+
+$$0 \in \mathbb{N}$$
+
+**In words:** Zero is a natural number.
+
+This ensures $\mathbb{N}$ is non-empty and provides a starting point for building all other numbers.
+
+**Type information:**
+
+- $0$ is an element (not a set, not a function)
+- $\mathbb{N}$ is a set
+- $\in$ is the membership relation
+
+## Axiom 2: Closure
+
+$$\forall n \in \mathbb{N}, \quad S(n) \in \mathbb{N}$$
+
+**In words:** The successor of any natural number is also a natural number.
+
+This ensures we can keep building—there's no edge where $S$ fails. The set $\mathbb{N}$ is "closed" under the successor operation.
+
+**Type information:**
+
+- $n \in \mathbb{N}$ (input is a natural number)
+- $S(n) \in \mathbb{N}$ (output is a natural number)
+- $S: \mathbb{N} \to \mathbb{N}$ is a total function
+
+This axiom also implicitly asserts $S$ is **single-valued** (function property): each $n$ has exactly one $S(n)$, not multiple.
+
+## Axiom 3: Injectivity
+
+$$\forall n, m \in \mathbb{N}, \quad S(n) = S(m) \implies n = m$$
+
+**Contrapositive form (equivalent):**
+
+$$\forall n, m \in \mathbb{N}, \quad n \neq m \implies S(n) \neq S(m)$$
+
+**In words:** Different natural numbers have different successors.
+
+This prevents "collisions"—situations where two different numbers have the same successor.
+
+**Distinction from function property:**
+
+- **Function (Axiom 2):** Each input has exactly **one** output
+- **Injective (Axiom 3):** Different inputs have **different** outputs
+
+All injective functions are functions, but not all functions are injective.
+
+**Visual representation:**
+
+```
+Not injective:
+3 → 5    (collision - both map to 5)
+4 ↗
+
+Injective:
+3 → 5
+4 → 6    (different outputs)
+```
+
+## Axiom 4: Zero is Not a Successor
+
+$$\forall n \in \mathbb{N}, \quad S(n) \neq 0$$
+
+**Equivalently:** $\neg \exists n \in \mathbb{N}$ such that $S(n) = 0$
+
+**In words:** Zero is not the successor of any natural number.
+
+This prevents cycles and makes 0 the unique minimal element. Without this axiom, we cannot distinguish infinite chains (like $\mathbb{N}$) from finite cycles (like clock arithmetic).
+
+**Combined with Axiom 3:** These two axioms together ensure no cycles anywhere in the structure, not just at 0.
+
+## Axiom 5: Induction Principle
+
+**Set-theoretic form:**
+
+Let $P \subseteq \mathbb{N}$. If:
+
+1. $0 \in P$, and
+2. $\forall n \in \mathbb{N}, \, n \in P \implies S(n) \in P$
+
+then $P = \mathbb{N}$.
+
+**Predicate form:**
+
+Let $P(n)$ be a property of natural numbers. If:
+
+1. $P(0)$ is true, and
+2. $\forall n \in \mathbb{N}, \, P(n) \implies P(S(n))$
+
+then $P(n)$ is true for all $n \in \mathbb{N}$.
+
+**In words:** If a set $P$ contains 0, and whenever $P$ contains $n$ it also contains $S(n)$, then $P$ contains all natural numbers.
+
+**Two purposes:**
+
+1. **Proof technique:** Gives us mathematical induction as a method
+2. **Minimality (more fundamental):** Ensures $\mathbb{N}$ is the **minimal** set satisfying Axioms 1-4
+
+The induction axiom prevents "ghost elements" that are not reachable from 0 by repeatedly applying successor. It ensures:
+
+$$\mathbb{N} = \{0, S(0), S(S(0)), S(S(S(0))), \ldots\}$$
+
+and nothing more.
+
+**Domino analogy:**
+
+- Condition (i): First domino falls
+- Condition (ii): If domino $n$ falls, then domino $S(n)$ falls
+- Conclusion: All dominoes fall
+
+# Understanding the Axioms
+
+## Why Each Axiom is Necessary
+
+We examine what breaks when each axiom is removed or violated.
+
+### Without Axiom 1 (Existence)
+
+**Violating structure:** Empty set $\emptyset$
+
+**What breaks:** No starting point. Cannot begin building anything.
+
+### Without Axiom 2 (Closure)
+
+**Violating structure:** $S(3)$ is undefined, or $S(3) \notin \mathbb{N}$
+
+**What breaks:**
+
+- Cannot always compute successor
+- Induction fails (cannot proceed from $n$ to $S(n)$ if $S(n)$ doesn't exist in $\mathbb{N}$)
+- Arithmetic becomes impossible: What is $3 + 1$ if $S(3)$ is undefined?
+
+**Example:**
+```
+0 → 1 → 2 → 3
+             ↓
+           (dead end, S(3) undefined)
+```
+
+### Without Axiom 3 (Injectivity)
+
+**Violating structure:** Colliding paths
+
+```
+0 → 1 → 2
+         ↓
+3 → 4 → 5 → 6 → ...
+    ↑
+```
+
+Where $S(2) = 5$ and $S(4) = 5$ (collision at 5)
+
+**What breaks:**
+
+1. **Addition ill-defined:** If we define $n + 1 = S(n)$, then $2 + 1 = S(2) = 5$, but also $4 + 1 = S(4) = 5$. This implies $2 + 1 = 4 + 1$, so $2 = 4$. Contradiction!
+
+2. **No unique representation:** The number 5 can be written as $S(2)$ or $S(4)$. Which predecessor is "real"?
+
+3. **Cannot invert $S$ uniquely:** If $S(n) = 7$, is $n = 6$ or something else? Ambiguous!
+
+### Without Axiom 4 (Zero Not Successor)
+
+**Violating structure:** Clock arithmetic $\mathbb{Z}/5\mathbb{Z}$
+
+```
+    0
+   ↗ ↖
+  4   1
+  ↓   ↑
+    3-2
+```
+
+Where $S(4) = 0$ (loops back)
+
+**What breaks:**
+
+1. **No first element:** Every element has a predecessor. Cannot identify a unique starting point for induction.
+
+2. **Cannot distinguish finite from infinite:** This structure is finite (5 elements), but without Axiom 4, we cannot rule it out as a model of $\mathbb{N}$.
+
+3. **Arithmetic differs:** In $\mathbb{Z}/5\mathbb{Z}$, we have $3 + 2 = 0$ (modular arithmetic), whereas in $\mathbb{N}$, we have $3 + 2 = 5$ (standard arithmetic).
+
+4. **Well-ordering fails:** In $\mathbb{N}$, every non-empty subset has a least element. In circular structures, no minimum exists.
+
+### Without Axiom 5 (Induction)
+
+**Violating structure:** $\mathbb{N} \cup \{\infty\}$ where $S(\infty) = \infty$
+
+```
+0 → 1 → 2 → 3 → ...  (reachable from 0)
+
+        ∞             (isolated, unreachable)
+```
+
+**Check Axioms 1-4:**
+
+- ✓ Axiom 1: $0$ exists
+- ✓ Axiom 2: $S(\infty) = \infty \in \mathbb{N} \cup \{\infty\}$
+- ✓ Axiom 3: $S$ is injective (different elements map to different successors)
+- ✓ Axiom 4: No element maps to 0
+
+**Axiom 5 fails:**
+
+Let $P = \{0, 1, 2, 3, \ldots\}$ (standard naturals, excluding $\infty$)
+
+- (i) $0 \in P$ ✓
+- (ii) If $n \in P$, then $S(n) \in P$ ✓
+
+But $P \neq \mathbb{N} \cup \{\infty\}$ because $\infty \notin P$!
+
+**What breaks:**
+
+1. **Non-uniqueness:** Which structure is THE natural numbers? $\mathbb{N}$ alone? $\mathbb{N} \cup \{\infty\}$? $\mathbb{N} \cup \{\omega, \omega+1, \omega+2, \ldots\}$?
+
+2. **Induction as proof technique fails:** We can prove properties for $\{0, 1, 2, \ldots\}$ but not for ghost elements.
+
+3. **Recursive definitions don't work on ghost elements:** If we recursively define operations, they only apply to reachable elements.
+
+## Connecting Formal to Intuitive
+
+Return to our three mental models:
+
+**Chain of Beads:**
+
+- Axiom 1: First bead exists (0)
+- Axiom 2: Every bead has a string to next bead (closure)
+- Axiom 3: No two beads connect to same next bead (injective)
+- Axiom 4: No string connects back to first bead (no cycle)
+- Axiom 5: Chain contains only beads reachable from first (minimality)
+
+**Ladder:**
+
+- Axiom 1: Ground level exists
+- Axiom 2: Every rung has a rung above it
+- Axiom 3: No two rungs lead to same upper rung
+- Axiom 4: No rung leads down to ground
+- Axiom 5: Ladder contains only rungs reachable from ground
+
+**Construction:**
+
+- Axiom 1: Process starts with {0}
+- Axiom 2: Process can always add successor
+- Axiom 3: New element is distinct from all previous
+- Axiom 4: Process never returns to 0
+- Axiom 5: $\mathbb{N}$ is exactly what process generates
+
+The formal axioms precisely capture these intuitive pictures.
+
+# Key Properties
+
+We now derive fundamental properties from the axioms alone. Even "obvious" facts require proof.
+
+## Property 1: Zero is Unique
+
+**Theorem:** There is exactly one element that is not a successor.
+
+**Proof:**
+
+We know from Axiom 4 that 0 is not a successor.
+
+**Uniqueness:** Suppose $x$ is another element that's not a successor, with $x \neq 0$.
+
+Consider the set $P = \{0, S(0), S(S(0)), S(S(S(0))), \ldots\}$—all elements reachable from 0.
+
+**Check induction conditions:**
+
+- (i) $0 \in P$ ✓ (by definition of $P$)
+- (ii) If $n \in P$, then $S(n) \in P$ ✓ (by construction of $P$)
+
+By Axiom 5 (induction): $P = \mathbb{N}$
+
+But $x \notin P$ (since $x$ is not a successor and $x \neq 0$, so $x$ is not reachable from 0).
+
+This contradicts $P = \mathbb{N}$.
+
+Therefore, no such $x$ exists. **Zero is the unique minimal element.** ∎
+
+## Property 2: Every Non-Zero Element is a Successor
+
+**Theorem:** For all $n \in \mathbb{N}$, if $n \neq 0$, then $n = S(m)$ for some $m \in \mathbb{N}$.
+
+**Proof by Induction:**
+
+Let $P = \{0\} \cup \{n \in \mathbb{N} : n = S(m) \text{ for some } m\}$
+
+In words: $P$ consists of 0 and all successors.
+
+**Claim:** $P = \mathbb{N}$
+
+**Base case:** $0 \in P$ ✓ (by definition of $P$)
+
+**Inductive step:** Suppose $n \in P$. Then $S(n) \in P$ because $S(n) = S(n)$ (it's a successor) ✓
+
+By Axiom 5 (induction): $P = \mathbb{N}$
+
+Therefore, every element is either 0 or a successor. ∎
+
+## Property 3: Successor is Bijection onto $\mathbb{N} \setminus \{0\}$
+
+**Theorem:** $S: \mathbb{N} \to \mathbb{N} \setminus \{0\}$ is a bijection.
+
+**Proof:**
+
+**Injective:** Axiom 3 directly states $S$ is injective. ✓
+
+**Surjective onto $\mathbb{N} \setminus \{0\}$:** Property 2 states every non-zero element is a successor. ✓
+
+Therefore $S$ is a bijection from $\mathbb{N}$ to $\mathbb{N} \setminus \{0\}$. ∎
+
+**Consequence:** We can define a **predecessor function** $P: \mathbb{N} \setminus \{0\} \to \mathbb{N}$:
+
+$$P(n) = \text{the unique } m \text{ such that } S(m) = n$$
+
+This exists and is unique by the bijection property.
+
+**Note:** $P$ is only defined on $\mathbb{N} \setminus \{0\}$, not on 0 itself (since 0 has no predecessor).
+
+## Property 4: $\mathbb{N}$ is Infinite
+
+**Theorem:** $\mathbb{N}$ has no largest element.
+
+**Proof by Contradiction:**
+
+Assume, for contradiction, that $\mathbb{N}$ has a largest element $k$.
+
+Then $\mathbb{N} = \{0, 1, 2, \ldots, k\}$ for some $k \in \mathbb{N}$.
+
+**Apply Axiom 2 (Closure):** Since $k \in \mathbb{N}$, we have $S(k) \in \mathbb{N}$ by Axiom 2.
+
+**Derive contradiction:**
+
+We show $S(k)$ cannot equal any element of $\{0, 1, 2, \ldots, k\}$:
+
+- $S(k) \neq 0$ by Axiom 4 ✓
+- $S(k) \neq 1, 2, \ldots, k$ because these are $S(0), S(1), \ldots, S(k-1)$ respectively, and $S$ is injective (Axiom 3). If $S(k) = S(i)$ for $i < k$, then $k = i$ by injectivity, contradicting $k > i$. ✓
+
+Therefore $S(k) \notin \{0, 1, 2, \ldots, k\} = \mathbb{N}$.
+
+But this contradicts Axiom 2, which states $S(k) \in \mathbb{N}$.
+
+**Conclusion:** Our assumption was false. $\mathbb{N}$ has no largest element. ∎
+
+**Alternative formulation:**
+
+By induction, the first $k+1$ elements generated from 0 are distinct:
+
+$$0, S(0), S^2(0), \ldots, S^k(0)$$
+
+are all different (by injectivity and Axiom 4). If $\mathbb{N}$ had exactly $k+1$ elements, then:
+
+$$\mathbb{N} = \{0, S(0), S^2(0), \ldots, S^k(0)\}$$
+
+But then $S(S^k(0)) = S^{k+1}(0)$ must equal one of these elements. It cannot equal 0 (Axiom 4), and it cannot equal $S^i(0)$ for $i < k$ (by injectivity). Contradiction!
+
+## Property 5: Successor Has No Fixed Points
+
+**Theorem:** For all $n \in \mathbb{N}$, $S(n) \neq n$.
+
+**Proof by Induction:**
+
+Let $P(n)$ be the statement "$S(n) \neq n$".
+
+**Base case ($n = 0$):**
+
+By Axiom 4, $S(n) \neq 0$ for all $n \in \mathbb{N}$.
+
+In particular, $S(0) \neq 0$. ✓
+
+So $P(0)$ is true.
+
+**Inductive step:**
+
+**Inductive Hypothesis (IH):** Assume $S(k) \neq k$ for some $k \in \mathbb{N}$.
+
+**Goal:** Prove $S(S(k)) \neq S(k)$.
+
+**Proof by contradiction:**
+
+Suppose $S(S(k)) = S(k)$.
+
+By Axiom 3 (injectivity): If $S(a) = S(b)$, then $a = b$.
+
+Applying this with $a = S(k)$ and $b = k$:
+
+$$S(S(k)) = S(k) \implies S(k) = k$$
+
+But this contradicts our inductive hypothesis that $S(k) \neq k$!
+
+Therefore our assumption was false: $S(S(k)) \neq S(k)$. ✓
+
+**Conclusion:**
+
+By the principle of mathematical induction (Axiom 5):
+
+- $P(0)$ is true
+- For all $k$, $P(k) \implies P(S(k))$
+
+Therefore $P(n)$ is true for all $n \in \mathbb{N}$.
+
+That is, **$S(n) \neq n$ for all $n \in \mathbb{N}$.** ∎
+
+# Axioms vs Definitions vs Theorems
+
+Before defining arithmetic operations, we must understand a fundamental distinction in mathematics.
+
+## Three Types of Mathematical Statements
+
+### Axioms (The Foundation)
+
+**What they are:** Statements we **accept without proof** as the starting point.
+
+**Example:** Axiom 4: $S(n) \neq 0$ for all $n \in \mathbb{N}$
+
+**Key properties:**
+
+- Cannot be proven from anything more basic
+- We simply **agree** these are true
+- They define the "rules of the game"
+
+**Analogy:** Like rules of chess—"bishops move diagonally" isn't proven; it's the rule we accept.
+
+### Definitions (Our Choices)
+
+**What they are:** We **introduce new concepts** by specifying what they mean in terms of things we already have.
+
+**Example we'll see soon:**
+
+$$n + 0 = n$$
+
+**Key properties:**
+
+- Not proven from axioms
+- Not axioms themselves
+- **Choices** we make about what new symbols mean
+- We could choose differently (but we choose wisely!)
+
+**Analogy:** Like defining a new chess piece. "The dragon moves like a knight but can also jump two squares diagonally"—we're inventing this, not discovering it.
+
+**Why definitions matter:**
+
+- We have $\mathbb{N}$, 0, and $S$ from axioms
+- But we don't have "$+$" yet!
+- We must **define** what "$+$" means using only 0 and $S$
+- The definition is our choice (but a smart choice!)
+
+### Theorems (What We Prove)
+
+**What they are:** Statements that **follow logically** from axioms + definitions.
+
+**Example we'll prove:** $m + n = n + m$ (commutativity)
+
+**Key properties:**
+
+- Must be **proven** using axioms, definitions, and logic
+- Not obvious (even if it feels obvious!)
+- Requires rigorous proof
+
+**Analogy:** In chess, "with only a king and bishop, you cannot checkmate a lone king"—this is a theorem provable from the rules.
+
+## The Framework
+
+```
+AXIOMS (given, unprovable foundation)
+    ↓
+DEFINITIONS (we choose these using axioms)
+    ↓  
+THEOREMS (we prove these using axioms + definitions)
+```
+
+**Example from Peano arithmetic:**
+
+```
+AXIOM: S(n) ≠ 0 for all n
+    ↓
+DEFINITION: n + 0 = n
+            n + S(m) = S(n + m)
+    ↓
+THEOREM: m + n = n + m (commutativity - must be proven!)
+```
+
+**Critical distinction:**
+
+- "$n + 0 = n$" is a **definition** (not from Axiom 4!)
+- "$m + n = n + m$" is a **theorem** (not from Axiom 3!)
+
+The axioms give us structure. Definitions let us build new operations. Theorems reveal properties that follow necessarily.
+
+# Defining Addition
+
+We now construct addition from first principles.
+
+## The Problem
+
+We have:
+
+- $\mathbb{N}$ (set of natural numbers)
+- $0$ (the starting element)
+- $S$ (successor function)
+
+We want:
+
+- "$+$" (addition operation)
+
+**But "$+$" doesn't exist yet!** We must create it using only what the axioms give us.
+
+## Recursive Definition Strategy
+
+**Key insight:** We cannot define all additions at once (infinitely many pairs!).
+
+**Solution:** Define addition **recursively**:
+
+- Give a rule for the simplest case (base case: adding 0)
+- Give a rule for reducing complex cases to simpler cases (recursive case: adding $S(m)$ in terms of adding $m$)
+
+This is analogous to:
+
+- Defining what happens when you add 0 (base)
+- Defining what happens when you add "one more," given you know how to add the previous amount (recursive)
+
+## Definition of Addition
+
+**For any $n, m \in \mathbb{N}$, we define $n + m$ by recursion on $m$:**
+
+### Base Case
+
+$$n + 0 = n$$
+
+**Meaning:** Adding zero to anything gives that thing back.
+
+**Why this choice?**
+
+- Makes 0 the "additive identity"
+- Matches intuition: "3 apples plus 0 apples = 3 apples"
+- Provides the base for our recursion
+
+**Important:** This is a **definition**, not a theorem from any axiom. We **choose** to define addition this way.
+
+### Recursive Case
+
+$$n + S(m) = S(n + m)$$
+
+**Meaning:** To add $n$ to the successor of $m$, take the successor of $(n + m)$.
+
+**In words:** "Adding to one-more-than-$m$ is the same as doing one-more-than (adding to $m$)"
+
+**Why this choice?**
+
+- Breaks down $n + S(m)$ into a simpler problem: $n + m$
+- We "peel off" the $S$ from the right, wrap it around the result
+- Matches intuition: $3 + 5 = 3 + (4+1) = (3+4) + 1$
+
+## How the Definition Works
+
+### Example 1: Computing $3 + 2$
+
+**Notation:**
+
+- $1 = S(0)$
+- $2 = S(S(0)) = S(1)$
+- $3 = S(S(S(0))) = S(2)$
+
+**Computation:**
+
+\begin{align*}
+3 + 2 &= 3 + S(1) && \text{[because } 2 = S(1)\text{]} \\
+&= S(3 + 1) && \text{[recursive rule: } n + S(m) = S(n+m)\text{]} \\
+&= S(3 + S(0)) && \text{[because } 1 = S(0)\text{]} \\
+&= S(S(3 + 0)) && \text{[recursive rule again]} \\
+&= S(S(3)) && \text{[base case: } n + 0 = n\text{]} \\
+&= S(S(S(S(S(0))))) && \text{[because } 3 = S(S(S(0)))\text{]} \\
+&= 5 && \text{[by definition of 5]}
+\end{align*}
+
+**What happened:**
+
+1. We applied the recursive rule repeatedly
+2. Each time, we "peeled off" one $S$ from the right
+3. We "wrapped" that $S$ around the outside
+4. Eventually we reached $+ 0$, where we used the base case
+5. We ended up with the right number of $S$'s wrapped around 0
+
+### Example 2: Computing $0 + 3$
+
+Is this the same as $3 + 0$?
+
+\begin{align*}
+0 + 3 &= 0 + S(2) && \text{[because } 3 = S(2)\text{]} \\
+&= S(0 + 2) && \text{[recursive rule]} \\
+&= S(0 + S(1)) && \text{[because } 2 = S(1)\text{]} \\
+&= S(S(0 + 1)) && \text{[recursive rule]} \\
+&= S(S(0 + S(0))) && \text{[because } 1 = S(0)\text{]} \\
+&= S(S(S(0 + 0))) && \text{[recursive rule]} \\
+&= S(S(S(0))) && \text{[base case]} \\
+&= 3 && \text{[by definition]}
+\end{align*}
+
+So $0 + 3 = 3$ ✓
+
+**Notice:** We needed to use the recursive rule 3 times, then the base case.
+
+Compare with $3 + 0$:
+
+$$3 + 0 = 3 \quad \text{[IMMEDIATELY by base case!]}$$
+
+This is much simpler!
+
+## A Shocking Truth
+
+From the definition alone:
+
+- ✓ We **know** $n + 0 = n$ (that's the base case—part of the definition)
+- ✗ We **don't immediately know** $0 + n = n$ (must prove as a theorem!)
+- ✗ We **don't immediately know** $S(n) + m = S(n + m)$ (must prove!)
+- ✗ We **don't immediately know** $m + n = n + m$ (must prove!)
+
+**Even things that feel "obvious" must be proven from the definition!**
+
+This is the essence of rigorous mathematics: we prove even the "obvious" things.
+
+## What's Next
+
+In the continuation of this treatment, we will:
+
+1. **Prove $0 + n = n$** (left identity) — surprisingly non-trivial!
+2. **Prove $S(m) + n = S(m + n)$** (left successor property) — harder!
+3. **Prove $m + n = n + m$** (commutativity) — very hard, requires previous results!
+4. **Prove $(a + b) + c = a + (b + c)$** (associativity)
+5. **Define multiplication** recursively
+6. **Prove properties** of multiplication (commutativity, associativity, distributivity)
+7. **Define order relation** $\leq$
+8. **Prove well-ordering principle**
+
+Each theorem builds on previous results, forming a logical hierarchy from the simple Peano Axioms to the full arithmetic structure.
+
+Coming soon!
