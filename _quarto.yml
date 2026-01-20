@@ -37,3 +37,4 @@ format:
     number-offset: -1
     embed-resources: true
     include-in-header: _includes/goatcounter.html
+    include-after-body: _includes/navbar_date.html

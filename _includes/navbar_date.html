@@ -1,0 +1,27 @@
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Format the date
+    const dateStr = new Date(document.lastModified).toLocaleDateString();
+    
+    // Create the date element
+    const dateEl = document.createElement("div");
+    dateEl.innerHTML = `Last updated: ${dateStr}`;
+    dateEl.style.fontSize = "0.7rem";
+    dateEl.style.color = "#8b9cb3"; // Muted blue-grey to match theme
+    dateEl.style.position = "absolute";
+    dateEl.style.bottom = "5px"; // Just off the bottom edge
+    dateEl.style.right = "20px"; // Align roughly with right padding
+    dateEl.style.opacity = "0.8";
+    dateEl.style.pointerEvents = "none"; // Don't interfere with clicks
+    
+    // Append to navbar container
+    const navbarContainer = document.querySelector(".navbar .container-fluid");
+    if (navbarContainer) {
+        // Ensure relative positioning context
+        if (window.getComputedStyle(navbarContainer).position === 'static') {
+            navbarContainer.style.position = 'relative';
+        }
+        navbarContainer.appendChild(dateEl);
+    }
+  });
+</script>

@@ -8,6 +8,7 @@ title: "Mathematics"
 
 ::: {.toggle-content}
 ### [2.1- Natural Numbers](natural_numbers_part_1.qmd) {.unnumbered}
+### [2.2- Operations on Natural Numbers](natural_numbers_part_2.qmd) {.unnumbered}
 :::
 
 ## [3- Euclidean Geometry](euclidean_geometry_enhanced.qmd) {.unnumbered}
